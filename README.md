@@ -8,6 +8,3 @@ http://net.tutsplus.com/tutorials/javascript-ajax/the-basics-of-object-oriented-
 
 https://developer.mozilla.org/en-US/docs/JavaScript/Introduction_to_Object-Oriented_JavaScript
 
-![Wireframe](http://imgur.com/SO1INIf,9KIrYhx)
-
-![Wireframe](http://imgur.com/SO1INIf,9KIrYhx#1)
