@@ -1,78 +1,79 @@
 // Create the canvas
 var canvas = document.createElement("canvas");
-var ctx = canvas.getContext("2d");
-    canvas.width = 800;
-    canvas.height = 600;
-    document.body.appendChild(canvas);
+  // Somewhat fullscreen canvas
+  canvas.width = window.innerWidth - 25;
+  canvas.height = window.innerHeight - 25;
 
-function node = {
-  size: null,
-  x: null,
-  y: null,
-  color: '#790ead',
+  /* Hardcoded Canvas Size
+  canvas.width = 800;
+  canvas.height = 600;
+  */
+var ctx = canvas.getContext("2d");
+document.body.appendChild(canvas);
+
+// Node class
+function Node (x, y, size) {
+  this.x = x;
+  this.y = y;
+  this.size = size;
+  this.color = '#00513d';
   
+  /*
   population: null,
   populationGrowthRate: null,
   
   resourceCount: null,
   resourceProductionRate: null,
- 
-  init: function(x, y) {
-    node.size = 20;    
-    node.x = x;
-    node.y = y;
-    node.population = 5;
-  },
+  */
+
+  //alert('Node instantiated');  
   
-  update: function() {
-      node.size += 0.02;
-  },
+  this.update = function() {
+      this.size += 0.02;
+  };
   
-  draw: function(x, y, size, color) {
-    ctx.fillStyle = color;
+  // Draws a circle
+  this.draw = function() {
+    ctx.fillStyle = this.color;
     ctx.beginPath();
-    ctx.arc((node.x - node.size), (node.y - node.size), node.size, 0, 2*Math.PI);
+    ctx.arc((this.x - this.size), (this.y - this.size), this.size, 0, 2*Math.PI);
     ctx.stroke();
     ctx.closePath();
     ctx.fill();
   }   
 };
 
-function edge {
-    
-    
-};
+/*
+function Edge {};
 
+function Pool {};
 
-function pool {
-    
-    
-};
-
-function disease {
+function Disease {
     fatality: null,
-    transmission_rate: null,
-    
+    transmission_rate: null,    
 };
+*/
 
-// Reset the game when the player catches a monster
-var reset = function () {
-    node.init(400,200);
-};
+var node1 = new Node(200,200, 50);
+var node2 = new Node(800,800, 25);
+
+var reset = function () {};
 
 // Update game objects
-var update = function (modifier) {
-    node.update();
+var update = function () {
+    node1.update();    
+    node2.update();
 };
 
 // Draw everything
 var render = function () {
     // Drawing edge between nodes
-    //ctx.moveTo(node.x, node.y);
-    //ctx.lineTo(node2.x, node2.y);
-    //ctx.stroke();
-    
-    node.draw(node.x, node.y, node.size, node.color);
+    ctx.moveTo(node1.x, node1.y);
+    ctx.lineTo(node2.x, node2.y);
+    ctx.stroke();
+
+    node1.draw();
+    node2.draw();
 };
 
 // The main game loop
@@ -89,4 +90,4 @@ var main = function () {
 // Let's play this game!
 reset();
 var then = Date.now();
-setInterval(main, 1); // Execute as fast as possible
+setInterval(main, 1); // Execute as fast as possible 
