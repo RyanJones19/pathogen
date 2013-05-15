@@ -6,12 +6,8 @@ var canvas = document.getElementById("mainCanvas");
 var ctx = canvas.getContext("2d");
 document.body.appendChild(canvas);
   // Canvas background color
-  ctx.fillStyle="#008A2E";
-  ctx.fillRect(0,0,canvas.width, canvas.height);
-
-// Sidebar
-ctx.fillStyle="#140000";
-ctx.fillRect(canvas.width-150,0,canvas.width, canvas.height);
+  //ctx.fillStyle="#008A2E";
+  //ctx.fillRect(0,0,canvas.width, canvas.height);
 
 function Node (x, y, size) {
   this.x = x;
@@ -30,7 +26,7 @@ function Node (x, y, size) {
   
   this.draw = function() {
     // Draws a circle
-    ctx.fillStyle = "#990000";
+    ctx.fillStyle = "#009933";
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.size, 0, 2*Math.PI);
     ctx.stroke();
@@ -44,9 +40,10 @@ function Node (x, y, size) {
   }   
 };
 
-function Edge () {
-  this.node1 = null;
-  this.node2 = null;
+function Edge (node1, node2) {
+  this.node1 = node1;
+  this.node2 = node2;
+
   this.distance = null;
 
   this.draw = function() {
@@ -69,24 +66,47 @@ function Disease {
 };
 */
 
+function inRange (x1, y1, x2, y2, range) {
+  if ((y1 - y2 >= range * -1 && y1 <= y2) || (y1 - y2 <= range && y1 >= y2)) {
+    if ((x1 - x2 >= range * -1 && x1 <= x2) || (x1 - x2 <= range && x1 >= x2)) {
+      return true;
+    }
+  }
+  return false;
+};
+
 var nodeArr = [];
 for (var i = 0; i < 10; i++) {
-    var obj = new Node(Math.random()*1000, Math.random()*1000, 30);
+    var obj = new Node(Math.random()*canvas.width, Math.random()*canvas.height, 30);
     nodeArr.push(obj);
+}
+
+var edgeArr = [];
+for (var i = 0; i < nodeArr.length; i++) {
+  for (var j = 0; j < nodeArr.length; j++) {
+    if (inRange(nodeArr[i].x, nodeArr[i].y, nodeArr[j].x, nodeArr[j].y, 300) == true) {
+      var obj = new Edge(nodeArr[i], nodeArr[j]);
+      edgeArr.push(obj);
+    }
+  }
 }
 
 var reset = function () {};
 
 // Update game objects
 var update = function () {
-  for (var i = 0; i < 10; i++) {
+  for (var i = 0; i < nodeArr.length; i++) {
     nodeArr[i].update();
   }
 };
 
 // Draw everything
 var render = function () {
-  for (var i = 0; i < 10; i++) {
+  for (var i = 0; i < edgeArr.length; i++) {
+    edgeArr[i].draw();
+  }
+
+  for (var i = 0; i < nodeArr.length; i++) {
     nodeArr[i].draw();
   }
 };
@@ -106,4 +126,3 @@ var main = function () {
 reset();
 var then = Date.now();
 setInterval(main, 1); // Execute as fast as possible 
-
