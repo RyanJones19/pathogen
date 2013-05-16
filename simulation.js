@@ -1,27 +1,30 @@
 var canvas = document.getElementById("mainCanvas");
   // Somewhat fullscreen canvas
-  canvas.width = window.innerWidth - 20;
-  canvas.height = window.innerHeight - 20;
+    canvas.width = window.innerWidth - 20;
+    canvas.height = window.innerHeight - 20;
 
 var ctx = canvas.getContext("2d");
 document.body.appendChild(canvas);
   // Canvas background color
-  //ctx.fillStyle="#008A2E";
-  //ctx.fillRect(0,0,canvas.width, canvas.height);
+    //ctx.fillStyle="#008A2E";
+    //ctx.fillRect(0,0,canvas.width, canvas.height);
 
-function Node (x, y, size) {
+function Node (x, y, initialPopulation) {
   this.x = x;
   this.y = y;
-  this.size = size;
+  this.size = null;
   
-  this.population = 5;
-  this.populationGrowthRate = null;
+  this.populationCount = initialPopulation;
+  this.populationGrowthRate = 0.01;
 
-  this.resourceCount = null;
-  this.resourceProductionRate = null;
+  this.resourceCount = 1;
+  this.resourceProductionRate = 0.01;
   
   this.update = function() {
-      this.population += 0.01;
+      this.populationCount += this.populationGrowthRate;
+      this.resourceCount += this.resourceProductionRate;
+
+      this.size = this.populationCount;
   };
   
   this.draw = function() {
@@ -34,9 +37,12 @@ function Node (x, y, size) {
     ctx.fill();
 
     // Print population count
-    ctx.fillStyle = "#FFFFFF";
+    ctx.fillStyle = "#000000";
     ctx.font="14px Arial";
-    ctx.fillText(this.population.toFixed(0), this.x, this.y);
+    // Print population
+    ctx.fillText(this.populationCount.toFixed(0), this.x + this.size + 10, this.y);
+    // Print resources
+    ctx.fillText(this.resourceCount.toFixed(0), this.x + this.size + 10, this.y + 15);
   }   
 };
 
@@ -77,7 +83,7 @@ function inRange (x1, y1, x2, y2, range) {
 
 var nodeArr = [];
 for (var i = 0; i < 10; i++) {
-    var obj = new Node(Math.random()*canvas.width, Math.random()*canvas.height, 30);
+    var obj = new Node(Math.random()*canvas.width, Math.random()*canvas.height, Math.random()*30);
     nodeArr.push(obj);
 }
 
@@ -91,7 +97,8 @@ for (var i = 0; i < nodeArr.length; i++) {
   }
 }
 
-var reset = function () {};
+var reset = function () {
+};
 
 // Update game objects
 var update = function () {
@@ -102,6 +109,9 @@ var update = function () {
 
 // Draw everything
 var render = function () {
+  // Clear canvas for redrawing
+  ctx.clearRect (0, 0, canvas.width, canvas.height);
+
   for (var i = 0; i < edgeArr.length; i++) {
     edgeArr[i].draw();
   }
