@@ -1,13 +1,9 @@
-var canvas = document.getElementById("mainCanvas");
-  // Somewhat fullscreen canvas
-    canvas.width = window.innerWidth - 20;
-    canvas.height = window.innerHeight - 20;
+var canvas = document.getElementById("canvas");
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
 
 var ctx = canvas.getContext("2d");
 document.body.appendChild(canvas);
-  // Canvas background color
-    //ctx.fillStyle="#008A2E";
-    //ctx.fillRect(0,0,canvas.width, canvas.height);
 
 function Node (x, y, initialPopulation) {
   this.x = x;
@@ -15,23 +11,46 @@ function Node (x, y, initialPopulation) {
   this.size = null;
   
   this.populationCount = initialPopulation;
-  this.populationGrowthRate = 0.01;
+  this.populationGrowthRate = 0.000002;
+
+  this.infectedPopulationCount = 1;
+  this.infectionTransmissionRate = 0.00015;
+
+  this.deadPopulationCount = 0;
+  this.populationDeathRate = 0.001;
 
   this.resourceCount = 1;
-  this.resourceProductionRate = 0.01;
+  this.resourceProductionRate = 0.001;
   
   this.update = function() {
-      this.populationCount += this.populationGrowthRate;
+      this.populationCount += this.populationCount * this.populationGrowthRate;
+      this.infectedPopulationCount += this.populationCount * this.infectionTransmissionRate;
+      this.deadPopulationCount += this.infectedPopulationCount * this.populationDeathRate;
+
       this.resourceCount += this.resourceProductionRate;
 
-      this.size = this.populationCount;
+      //this.size = this.populationCount;
   };
   
   this.draw = function() {
     // Draws a circle
-    ctx.fillStyle = "#009933";
     ctx.beginPath();
-    ctx.arc(this.x, this.y, this.size, 0, 2*Math.PI);
+      ctx.fillStyle = "#009933";
+      ctx.arc(this.x, this.y, this.populationCount, 0, 2*Math.PI);
+    ctx.stroke();
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.beginPath();
+      ctx.fillStyle = "#FF3300";
+      ctx.arc(this.x, this.y, this.infectedPopulationCount, 0, 2*Math.PI);
+    ctx.stroke();
+    ctx.closePath();
+    ctx.fill();
+
+   ctx.beginPath();
+      ctx.fillStyle = "#0F0F0F";
+      ctx.arc(this.x, this.y, this.deadPopulationCount, 0, 2*Math.PI);
     ctx.stroke();
     ctx.closePath();
     ctx.fill();
@@ -83,7 +102,7 @@ function inRange (x1, y1, x2, y2, range) {
 
 var nodeArr = [];
 for (var i = 0; i < 10; i++) {
-    var obj = new Node(Math.random()*canvas.width, Math.random()*canvas.height, Math.random()*30);
+    var obj = new Node(Math.random()*canvas.width, Math.random()*canvas.height, Math.random()*100);
     nodeArr.push(obj);
 }
 
@@ -111,6 +130,14 @@ var update = function () {
 var render = function () {
   // Clear canvas for redrawing
   ctx.clearRect (0, 0, canvas.width, canvas.height);
+
+  // Canvas background color
+  ctx.fillStyle = "#7A8B8B";
+  ctx.fillRect(0,0,canvas.width, canvas.height);
+
+  // Sidebar
+  ctx.fillStyle = "#0F0F0F";
+  ctx.fillRect(canvas.width - 150, 0, canvas.width, canvas.height);
 
   for (var i = 0; i < edgeArr.length; i++) {
     edgeArr[i].draw();
