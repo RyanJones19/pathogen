@@ -1,88 +1,43 @@
 var canvas = document.getElementById("canvas");
-var ctx = canvas.getContext("2d");
-document.body.appendChild(canvas);
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
+var ctx = canvas.getContext("2d");
 
 var nodeArr = [];
 var edgeArr = [];
 
-function Node (x, y, initialPopulation) {
-  this.x = x;
-  this.y = y;
-  this.size = null;
-  
-  this.populationCount = initialPopulation;
-  this.populationGrowthRate = 0.000002;
+// Handle Mouse Position
+var mouseX, mouseY;
+canvas.addEventListener("mousemove", getPosition, false);
 
-  this.infectedPopulationCount = 1;
-  this.infectionTransmissionRate = 0.00015;
+function getPosition (event)
+{
+  var canvas = document.getElementById("canvas");
+  mouseX = event.x - canvas.offsetLeft;
+  mouseY = event.y - canvas.offsetTop;
+}
 
-  this.deadPopulationCount = 0;
-  this.populationDeathRate = 0.001;
-
-  this.resourceCount = 1;
-  this.resourceProductionRate = 0.001;
-  
-  this.update = function() {
-      this.populationCount += this.populationCount * this.populationGrowthRate;
-      this.infectedPopulationCount += this.populationCount * this.infectionTransmissionRate;
-      this.deadPopulationCount += this.infectedPopulationCount * this.populationDeathRate;
-      this.resourceCount += this.resourceProductionRate;
-      //this.size = this.populationCount;
-  };
-  
-  this.draw = function() {
-    function drawCircle (x, y, size, color) {
-      ctx.beginPath();
-        ctx.fillStyle = color;
-        ctx.arc(x, y, size, 0, 2*Math.PI);
-      ctx.stroke();
-      ctx.closePath();
-      ctx.fill();
-    };
-
-    drawCircle(this.x, this.y, this.populationCount, "#009933");          // Draw green pop circle
-    drawCircle(this.x, this.y, this.infectedPopulationCount, "#FF3300");  // Draw orange infected circle    
-    drawCircle(this.x, this.y, this.deadPopulationCount, "#0F0F0F");      // Draw black death circle
-
-    ctx.fillStyle = "#000000";
-    ctx.font="14px Arial";
-    ctx.fillText(this.populationCount.toFixed(0), this.x + this.size + 10, this.y); // Print population
-    ctx.fillText(this.resourceCount.toFixed(0), this.x + this.size + 10, this.y + 15); // Print resources
-  }   
-};
-
-function Edge (node1, node2) {
-  this.node1 = node1;
-  this.node2 = node2;
-  this.distance = null;
-
-  this.draw = function() {
-    // Draw edge
-    ctx.fillStyle = "#FFFFFF";
-    ctx.beginPath();
-    ctx.moveTo(node1.x, node1.y);
-    ctx.lineTo(node2.x, node2.y);
-    ctx.stroke();
-    ctx.closePath();
-  }  
-};
+function inRange (x1, y1, x2, y2, range) 
+{
+  if ((y1 - y2 >= range * -1 && y1 <= y2) || (y1 - y2 <= range && y1 >= y2)) {
+    if ((x1 - x2 >= range * -1 && x1 <= x2) || (x1 - x2 <= range && x1 >= x2)) 
+      return true;
+  }
+  return false;
+}
 
 /*
  * Initialize game objects
  */
-var reset = function () {
-  function inRange (x1, y1, x2, y2, range) {
-    if ((y1 - y2 >= range * -1 && y1 <= y2) || (y1 - y2 <= range && y1 >= y2)) {
-      if ((x1 - x2 >= range * -1 && x1 <= x2) || (x1 - x2 <= range && x1 >= x2)) 
-        return true;
-    }
-    return false;
-  };
-
+function reset() 
+{
   for (var i = 0; i < 10; i++) {
-    var obj = new Node(Math.random()*canvas.width, Math.random()*canvas.height, Math.random()*100);
+    // Create offset from edges of canvas
+    var tmpX = (Math.random()*(canvas.width-250)) +50;
+    var tmpY = (Math.random()*(canvas.height-50)) +50;
+    var tmpSize = Math.random()*40 +10;
+
+    var obj = new Node(tmpX, tmpY, tmpSize);
     nodeArr.push(obj);
   }
 
@@ -94,42 +49,64 @@ var reset = function () {
       }
     }
   }
-};
+}
 
 /*
  * Update game objects
  *
  */
-var update = function () {
+function update () 
+{
   for (var i = 0; i < nodeArr.length; i++)
     nodeArr[i].update();
-};
+
+  for (var j = 0; j < nodeArr.length; j++) {
+    if (inRange(nodeArr[j].x, nodeArr[j].y, mouseX, mouseY, nodeArr[j].populationCount) == true) {
+      if (nodeArr[j].infectedPopulationCount > 0.1) {
+        nodeArr[j].infectedPopulationCount -= 0.1;
+      }
+    }
+  }
+}
 
 /*
  * Draw everything
  *
  */
-var render = function () {
-  ctx.clearRect (0, 0, canvas.width, canvas.height);                  // Clear canvas for redrawing
+function render () 
+{
+  // Clear canvas for redrawing
+  ctx.clearRect (0, 0, canvas.width, canvas.height);                  
 
-  ctx.fillStyle = "#7A8B8B";
-  ctx.fillRect(0,0,canvas.width, canvas.height);                      // Set Canvas background color
+  // Set Canvas background color
+  ctx.fillStyle = "#3ca9d0";
+  ctx.fillRect(0,0,canvas.width, canvas.height);                      
 
+  // Draw Sidebar
   ctx.fillStyle = "#0F0F0F";
-  ctx.fillRect(canvas.width - 150, 0, canvas.width, canvas.height);   // Draw Sidebar
+  ctx.fillRect(canvas.width - 150, 0, canvas.width, canvas.height);   
 
+  // Draw Edges
   for (var i = 0; i < edgeArr.length; i++) 
     edgeArr[i].draw();
 
+  // Draw Nodes
   for (var i = 0; i < nodeArr.length; i++) 
     nodeArr[i].draw();
-};
+
+  // Draw Mouse Pos
+  ctx.fillStyle = "#FFFFFF";
+  ctx.font="14px Arial";
+  ctx.fillText("X: " + mouseX, canvas.width - 125, 25);
+  ctx.fillText("Y: " + mouseY, canvas.width - 125, 50); 
+}
 
 /*
  * The main game loop
  *
  */
-var main = function () {
+function main () 
+{
   var now = Date.now();
   var delta = now - then;
 
@@ -137,7 +114,7 @@ var main = function () {
 	render();
 
 	then = now;
-};
+}
 
 /*
  * Load game
