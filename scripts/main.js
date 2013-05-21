@@ -29,6 +29,10 @@ function inRange (x1, y1, x2, y2, range)
 /*
  * Initialize game objects
  */
+/*
+ 
+ */
+
 function reset() 
 {
   for (var i = 0; i < 10; i++) {
